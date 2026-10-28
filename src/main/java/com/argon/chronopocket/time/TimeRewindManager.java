@@ -1,5 +1,8 @@
 package com.argon.chronopocket.time;
 
+import com.argon.chronopocket.component.PocketDataComponents;
+import com.argon.chronopocket.component.TimeRemoteData;
+import com.argon.chronopocket.item.TimeRemoteItem;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -13,10 +16,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ServerLevelData;
@@ -27,8 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * TOTAL TIME CONTROL ENGINE:
- * - Records rolling history of players, animals, and blocks.
- * - Restores 100% of broken, placed, and changed blocks during rewind.
+ * - Records rolling history of players, animals, and 100% of block changes via LevelBlockMixin.
+ * - Restores 100% of broken, placed, and exploded blocks during rewind.
+ * - Prevents item duplication by cleaning up items dropped during the rewind window.
  * - Glides animals and mobs backwards along their motion paths.
  * - Resurrects killed animals and mobs back to life with totem particles!
  * - Smoothly winds daylight back and transits players out of pocket dimensions.
@@ -38,39 +45,50 @@ public class TimeRewindManager {
     public static final int MAX_HISTORY_TICKS = 200; // 10.0 seconds
     public static final int REWIND_ANIMATION_DURATION = 20; // 1.0 second smooth reverse animation
 
+    private static final ThreadLocal<Boolean> IS_RESTORING = ThreadLocal.withInitial(() -> false);
+    private static volatile boolean isRewinding = false;
+    private static long serverTickCounter = 0;
+
     private static final Deque<TimeSnapshot> HISTORY = new ArrayDeque<>();
     private static final Map<BlockPos, TimeSnapshot.BlockRecord> RECENT_BLOCK_CHANGES = new ConcurrentHashMap<>();
+    private static final List<TimeSnapshot.BlockRecord> ACTIVE_BLOCKS_TO_RESTORE = new ArrayList<>();
     private static final Map<UUID, TimeSnapshot.EntityRecord> ACTIVE_ENTITY_TRACKERS = new ConcurrentHashMap<>();
     private static final Map<UUID, List<Vec3>> PLAYER_TRAJECTORIES = new ConcurrentHashMap<>();
 
-    private static boolean isRewinding = false;
     private static int rewindTickCount = 0;
     private static TimeSnapshot activeTargetSnapshot = null;
     private static final Map<UUID, Vec3> REWIND_START_POSITIONS = new HashMap<>();
 
+    public static boolean isRestoring() {
+        return IS_RESTORING.get();
+    }
+
+    public static boolean isRewinding() {
+        return isRewinding;
+    }
+
     public static void initialize() {
-        // 1. Intercept Block Breaking: save original state before destruction
+        // Fallback safety hooks for events in addition to LevelBlockMixin
         PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> {
-            if (!level.isClientSide() && !isRewinding) {
-                recordBlockState(level.dimension(), pos, state);
+            if (!level.isClientSide() && !isRewinding && !IS_RESTORING.get()) {
+                recordBlockChange(level.dimension(), pos, state);
             }
             return true;
         });
 
-        // 2. Intercept Block Placement / Interaction: save original state before block is placed
         UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
-            if (!level.isClientSide() && !isRewinding) {
+            if (!level.isClientSide() && !isRewinding && !IS_RESTORING.get()) {
                 BlockPos clickedPos = hitResult.getBlockPos();
                 BlockPos placePos = clickedPos.relative(hitResult.getDirection());
-
-                recordBlockState(level.dimension(), placePos, level.getBlockState(placePos));
-                recordBlockState(level.dimension(), clickedPos, level.getBlockState(clickedPos));
+                recordBlockChange(level.dimension(), placePos, level.getBlockState(placePos));
+                recordBlockChange(level.dimension(), clickedPos, level.getBlockState(clickedPos));
             }
             return InteractionResult.PASS;
         });
 
-        // 3. Server tick loop: record history or execute rewind animation
+        // Server tick loop
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            serverTickCounter++;
             if (isRewinding) {
                 processRewindTick(server);
             } else {
@@ -79,12 +97,20 @@ public class TimeRewindManager {
         });
     }
 
-    public static void recordBlockState(ResourceKey<Level> dim, BlockPos pos, BlockState state) {
-        // putIfAbsent ensures we ONLY preserve the initial state before any modifications occurred
+    /**
+     * Intercepts and records any block change from LevelBlockMixin or events.
+     * putIfAbsent guarantees we record the ORIGINAL state before ANY sequence of modifications!
+     */
+    public static void recordBlockChange(ResourceKey<Level> dim, BlockPos pos, BlockState oldState) {
+        if (isRewinding || IS_RESTORING.get()) {
+            return;
+        }
+
         RECENT_BLOCK_CHANGES.putIfAbsent(pos.immutable(), new TimeSnapshot.BlockRecord(
             pos.immutable(),
             dim,
-            state
+            oldState,
+            serverTickCounter
         ));
     }
 
@@ -95,7 +121,21 @@ public class TimeRewindManager {
         Map<UUID, TimeSnapshot.PlayerRecord> playerMap = new HashMap<>();
         Map<UUID, TimeSnapshot.EntityRecord> entityMap = new HashMap<>();
 
+        boolean anyCheckpointActive = false;
+
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            // Check if player has an active temporal checkpoint armed
+            for (InteractionHand hand : InteractionHand.values()) {
+                ItemStack stack = player.getItemInHand(hand);
+                if (stack.getItem() instanceof TimeRemoteItem) {
+                    TimeRemoteData data = stack.get(PocketDataComponents.TIME_REMOTE_DATA);
+                    if (data != null && data.active()) {
+                        anyCheckpointActive = true;
+                        break;
+                    }
+                }
+            }
+
             UUID pUuid = player.getUUID();
             PLAYER_TRAJECTORIES.computeIfAbsent(pUuid, k -> new ArrayList<>()).add(player.position());
             List<Vec3> pPath = PLAYER_TRAJECTORIES.get(pUuid);
@@ -144,6 +184,13 @@ public class TimeRewindManager {
             }
         }
 
+        // Rolling memory bounded cleanup: if no active checkpoint, prune block records older than 10 seconds
+        if (!anyCheckpointActive) {
+            RECENT_BLOCK_CHANGES.entrySet().removeIf(entry ->
+                serverTickCounter - entry.getValue().recordedTick() > MAX_HISTORY_TICKS
+            );
+        }
+
         entityMap.putAll(ACTIVE_ENTITY_TRACKERS);
         Map<BlockPos, TimeSnapshot.BlockRecord> blockChangesSnapshot = new HashMap<>(RECENT_BLOCK_CHANGES);
 
@@ -165,6 +212,10 @@ public class TimeRewindManager {
         List<TimeSnapshot> list = new ArrayList<>(HISTORY);
         int targetIndex = Math.max(0, list.size() - stepsBack);
         activeTargetSnapshot = list.get(targetIndex);
+
+        // Capture all block modifications that occurred within the rewind window
+        ACTIVE_BLOCKS_TO_RESTORE.clear();
+        ACTIVE_BLOCKS_TO_RESTORE.addAll(RECENT_BLOCK_CHANGES.values());
 
         isRewinding = true;
         rewindTickCount = 0;
@@ -293,40 +344,76 @@ public class TimeRewindManager {
     }
 
     private static void finalizeRewind(MinecraftServer server) {
+        // 1. RESTORE 100% OF RECORDED BLOCKS (broken blocks re-solidify, placed blocks removed!)
+        IS_RESTORING.set(true);
+        try {
+            for (TimeSnapshot.BlockRecord blockRecord : ACTIVE_BLOCKS_TO_RESTORE) {
+                ServerLevel dimLevel = server.getLevel(blockRecord.dimension());
+                if (dimLevel != null) {
+                    // Flag 3: update neighbors and sync packet to clients immediately
+                    dimLevel.setBlock(blockRecord.pos(), blockRecord.originalState(), 3);
+                    dimLevel.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                        blockRecord.pos().getX() + 0.5,
+                        blockRecord.pos().getY() + 0.5,
+                        blockRecord.pos().getZ() + 0.5,
+                        8, 0.25, 0.25, 0.25, 0.05);
+                }
+            }
+        } finally {
+            IS_RESTORING.set(false);
+            RECENT_BLOCK_CHANGES.clear();
+            ACTIVE_BLOCKS_TO_RESTORE.clear();
+        }
+
+        // 2. Prevent item duplication: discard items dropped in the area during the rewind window
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            ServerLevel playerDimLevel = (ServerLevel) player.level();
+            List<ItemEntity> droppedItems = playerDimLevel.getEntitiesOfClass(
+                ItemEntity.class,
+                player.getBoundingBox().inflate(32.0),
+                item -> item.tickCount <= (MAX_HISTORY_TICKS + 40)
+            );
+            for (ItemEntity item : droppedItems) {
+                item.discard();
+            }
+        }
+
+        // 3. Restore surviving living entities' health
+        if (activeTargetSnapshot != null) {
+            for (TimeSnapshot.EntityRecord rec : activeTargetSnapshot.entities().values()) {
+                ServerLevel dimLevel = server.getLevel(rec.dimension());
+                if (dimLevel != null) {
+                    Entity entity = dimLevel.getEntity(rec.uuid());
+                    if (entity instanceof LivingEntity living && living.isAlive()) {
+                        living.setHealth(rec.initialHealth());
+                    }
+                }
+            }
+        }
+
+        // 4. Restore players' exact states
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (activeTargetSnapshot != null) {
+                TimeSnapshot.PlayerRecord rec = activeTargetSnapshot.players().get(player.getUUID());
+                if (rec != null) {
+                    ServerLevel targetLevel = server.getLevel(rec.dimension());
+                    if (targetLevel != null) {
+                        player.teleportTo(targetLevel, rec.position().x, rec.position().y, rec.position().z, Set.of(), rec.yRot(), rec.xRot(), true);
+                    }
+                    player.setHealth(rec.health());
+                    player.getFoodData().setFoodLevel(rec.foodLevel());
+                    player.resetFallDistance();
+
+                    player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.2f, 1.6f);
+                    player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.5f, 1.2f);
+                    player.sendOverlayMessage(Component.translatable("message.chronopocket.rewound").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+                }
+            }
+        }
+
+        // 5. Clear trackers and end rewind
         isRewinding = false;
         rewindTickCount = 0;
-
-        if (activeTargetSnapshot == null) return;
-
-        // 1. Restore 100% of recorded blocks (broken blocks re-solidify, placed blocks removed!)
-        for (TimeSnapshot.BlockRecord blockRecord : activeTargetSnapshot.blockChanges().values()) {
-            ServerLevel dimLevel = server.getLevel(blockRecord.dimension());
-            if (dimLevel != null) {
-                dimLevel.setBlock(blockRecord.pos(), blockRecord.originalState(), 3);
-                dimLevel.sendParticles(ParticleTypes.REVERSE_PORTAL, blockRecord.pos().getX() + 0.5, blockRecord.pos().getY() + 0.5, blockRecord.pos().getZ() + 0.5, 12, 0.3, 0.3, 0.3, 0.05);
-            }
-        }
-        RECENT_BLOCK_CHANGES.clear();
-
-        // 2. Restore players' exact states
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            TimeSnapshot.PlayerRecord rec = activeTargetSnapshot.players().get(player.getUUID());
-            if (rec != null) {
-                ServerLevel targetLevel = server.getLevel(rec.dimension());
-                if (targetLevel != null) {
-                    player.teleportTo(targetLevel, rec.position().x, rec.position().y, rec.position().z, Set.of(), rec.yRot(), rec.xRot(), true);
-                }
-                player.setHealth(rec.health());
-                player.getFoodData().setFoodLevel(rec.foodLevel());
-                player.resetFallDistance();
-
-                player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.2f, 1.6f);
-                player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.5f, 1.2f);
-                player.sendOverlayMessage(Component.translatable("message.chronopocket.rewound").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
-            }
-        }
-
-        // 3. Clear trackers
         HISTORY.clear();
         ACTIVE_ENTITY_TRACKERS.clear();
         PLAYER_TRAJECTORIES.clear();

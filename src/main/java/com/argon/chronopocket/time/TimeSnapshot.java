@@ -43,6 +43,11 @@ public record TimeSnapshot(
     public record BlockRecord(
         BlockPos pos,
         ResourceKey<Level> dimension,
-        BlockState originalState
-    ) {}
+        BlockState originalState,
+        long recordedTick
+    ) {
+        public BlockRecord(BlockPos pos, ResourceKey<Level> dimension, BlockState originalState) {
+            this(pos, dimension, originalState, 0);
+        }
+    }
 }
