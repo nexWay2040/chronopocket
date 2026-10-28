@@ -75,7 +75,7 @@
 ## 🛠️ Сборка из исходников
 
 ```bash
-git clone https://github.com/ВАШ_ЛОГИН/chronopocket.git
+git clone https://github.com/nexWay2040/chronopocket.git
 cd chronopocket
 ./gradlew build
 ```
