@@ -1,0 +1,24 @@
+{
+  "block.chronopocket.pocket_base": "Карманная База",
+  "block.chronopocket.pocket_exit": "Терминал Возврата",
+  "item.chronopocket.pocket_base": "Карманная База",
+  "item.chronopocket.pocket_exit": "Терминал Возврата",
+  "item.chronopocket.time_remote": "Хроно-Пульт Перемотки Времени",
+
+  "tooltip.chronopocket.bound_room": "✔ Привязана комната подпространства #%d",
+  "tooltip.chronopocket.empty_room": "✦ Новая неактивированная база",
+  "tooltip.chronopocket.preserved": "§a✔ При разрушении все вещи и блоки сохраняются внутри!",
+  "tooltip.chronopocket.pocket_base.desc1": "§7Поставьте блок и нажмите §eПКМ§7, чтобы войти внутрь (комната 9x9x9).",
+  "tooltip.chronopocket.pocket_base.desc2": "§8Сломайте киркой и носите всю обустроенную базу с собой!",
+
+  "tooltip.chronopocket.time_remote.active": "§6⏳ Якорь времени активен: §f%s с §7(ПКМ для возврата)",
+  "tooltip.chronopocket.time_remote.desc1": "§b[ПКМ] §7Установить квантовый якорь времени (окно до 10 сек)",
+  "tooltip.chronopocket.time_remote.desc2": "§6[Повторный ПКМ] §7Перемотать мир, игроков и мобов назад к якорю!",
+  "tooltip.chronopocket.time_remote.desc3": "§d[Shift + ПКМ] §7Экстренная перемотка на 10 секунд назад",
+
+  "message.chronopocket.checkpoint_set": "§e[Хроно-Пульт] §aЯкорь времени зафиксирован! Перемотка доступна (10 сек)",
+  "message.chronopocket.checkpoint_expired": "§c[Хроно-Пульт] §7Время действия якоря истекло.",
+  "message.chronopocket.checkpoint_ticking": "§6[Хроно-Пульт] §eОсталось: §f%s с §7(ПКМ для отката)",
+  "message.chronopocket.rewinding": "§d⚡ [Хроно-Пульт] ПЕРЕМОТКА ВРЕМЕНИ НАЗАД...",
+  "message.chronopocket.rewound": "§b⚡ [Хроно-Пульт] ВРЕМЯ УСПЕШНО ПЕРЕМОТАНО НАЗАД!"
+}

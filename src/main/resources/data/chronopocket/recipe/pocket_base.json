@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "COC",
+    "OEO",
+    "COC"
+  ],
+  "key": {
+    "C": "minecraft:copper_block",
+    "O": "minecraft:obsidian",
+    "E": "minecraft:ender_eye"
+  },
+  "result": {
+    "id": "chronopocket:pocket_base",
+    "count": 1
+  }
+}

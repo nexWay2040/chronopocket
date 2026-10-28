@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "chronopocket:block/pocket_base"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "chronopocket:block/pocket_base_top",
+    "bottom": "chronopocket:block/pocket_base_top",
+    "side": "chronopocket:block/pocket_base_side"
+  }
+}

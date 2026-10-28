@@ -1,0 +1,24 @@
+{
+  "block.chronopocket.pocket_base": "Pocket Base",
+  "block.chronopocket.pocket_exit": "Exit Console",
+  "item.chronopocket.pocket_base": "Pocket Base",
+  "item.chronopocket.pocket_exit": "Exit Console",
+  "item.chronopocket.time_remote": "Chrono-Remote Time Rewind",
+
+  "tooltip.chronopocket.bound_room": "✔ Linked to Pocket Vault #%d",
+  "tooltip.chronopocket.empty_room": "✦ Uninitialized Pocket Base",
+  "tooltip.chronopocket.preserved": "§a✔ All blocks and chest contents remain preserved inside when mined!",
+  "tooltip.chronopocket.pocket_base.desc1": "§7Place block down and §eRight-Click§7 to enter interior 9x9x9 room.",
+  "tooltip.chronopocket.pocket_base.desc2": "§8Mine with pickaxe to carry your entire fully-equipped base in 1 slot!",
+
+  "tooltip.chronopocket.time_remote.active": "§6⏳ Checkpoint active: §f%s s §7(Right-Click to rewind)",
+  "tooltip.chronopocket.time_remote.desc1": "§b[Right-Click] §7Arm temporal checkpoint (10s window)",
+  "tooltip.chronopocket.time_remote.desc2": "§6[Right-Click Again] §7Rewind world, blocks, and all players back to checkpoint!",
+  "tooltip.chronopocket.time_remote.desc3": "§d[Shift + Right-Click] §7Instant emergency 10-second rollback",
+
+  "message.chronopocket.checkpoint_set": "§e[Chrono-Remote] §aTemporal anchor locked! Rewind ready (10s)",
+  "message.chronopocket.checkpoint_expired": "§c[Chrono-Remote] §7Temporal anchor expired.",
+  "message.chronopocket.checkpoint_ticking": "§6[Chrono-Remote] §eRewind available: §f%s s §7(Right-Click to reset)",
+  "message.chronopocket.rewinding": "§d⚡ [Chrono-Remote] REWINDING TIME BACKWARDS...",
+  "message.chronopocket.rewound": "§b⚡ [Chrono-Remote] TIMELINE SUCCESSFULLY REWOUND!"
+}

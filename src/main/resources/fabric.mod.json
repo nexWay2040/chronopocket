@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "gravitymod",
+	"id": "chronopocket",
 	"version": "${version}",
-	"name": "The Gravity Gauntlet",
-	"description": "A physics-defying Half-Life 2 style Gravity Gun for Minecraft 26.1.",
+	"name": "ChronoPocket: Base & Time Rewind",
+	"description": "Quantum Spatial Pocket Base in 1 Block & Rick and Morty 10-Second Time Rewind for Minecraft 26.1.",
 	"authors": [
 		"Gemini 4 Argon"
 	],
@@ -11,20 +11,20 @@
 		"homepage": "https://fabricmc.net/"
 	},
 	"license": "MIT",
-	"icon": "assets/gravitymod/icon.png",
+	"icon": "assets/chronopocket/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.argon.gravitymod.GravityMod"
+			"com.argon.chronopocket.ChronoPocketMod"
 		],
 		"client": [
-			"com.argon.gravitymod.client.GravityModClient"
+			"com.argon.chronopocket.client.ChronoPocketClient"
 		]
 	},
 	"mixins": [
-		"gravitymod.mixins.json",
+		"chronopocket.mixins.json",
 		{
-			"config": "gravitymod.client.mixins.json",
+			"config": "chronopocket.client.mixins.json",
 			"environment": "client"
 		}
 	],

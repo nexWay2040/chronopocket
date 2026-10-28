@@ -22,7 +22,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"gravitymod" {
+		"chronopocket" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
