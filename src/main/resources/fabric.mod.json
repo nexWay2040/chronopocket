@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "gravitymod",
+	"version": "${version}",
+	"name": "The Gravity Gauntlet",
+	"description": "A physics-defying Half-Life 2 style Gravity Gun for Minecraft 26.1.",
+	"authors": [
+		"Gemini 4 Argon"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/"
+	},
+	"license": "MIT",
+	"icon": "assets/gravitymod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.argon.gravitymod.GravityMod"
+		],
+		"client": [
+			"com.argon.gravitymod.client.GravityModClient"
+		]
+	},
+	"mixins": [
+		"gravitymod.mixins.json",
+		{
+			"config": "gravitymod.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.1",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

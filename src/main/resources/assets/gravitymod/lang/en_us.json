@@ -1,0 +1,15 @@
+{
+  "item.gravitymod.gravity_gauntlet": "The Gravity Gauntlet",
+  "item.gravitymod.gravity_gauntlet.desc": "Zero-Point Energy Field Manipulator",
+  "item.gravitymod.gravity_gauntlet.tooltip.mode1": "§e[Right-Click]§7 Capture entity or rip block into gravity field",
+  "item.gravitymod.gravity_gauntlet.tooltip.mode2": "§6[Left-Click]§7 Kinetic launch held entity/block (Speed: 4.0)",
+  "item.gravitymod.gravity_gauntlet.tooltip.mode2_empty": "§b[Left-Click (Empty)]§7 Conical Repulsor Shockwave",
+  "item.gravitymod.gravity_gauntlet.tooltip.attract": "§d[Shift + Right-Click]§7 Gravitational Item Vortex (15m radius)",
+  "item.gravitymod.gravity_gauntlet.tooltip.durability_info": "§8Holding consumes 1 durability every 2 seconds",
+  "message.gravitymod.captured": "§b[Gravity Gauntlet] §eTarget locked: §f%s",
+  "message.gravitymod.captured_block": "§b[Gravity Gauntlet] §eBlock extracted: §f%s",
+  "message.gravitymod.released": "§7[Gravity Gauntlet] §fTarget released.",
+  "message.gravitymod.launched": "§c[Gravity Gauntlet] §6§lSUPERSONIC LAUNCH!",
+  "message.gravitymod.repulsor": "§9[Gravity Gauntlet] §b⚡ Repulsor Shockwave!",
+  "message.gravitymod.attracted": "§d[Gravity Gauntlet] §5Magnetic field attracted items!"
+}

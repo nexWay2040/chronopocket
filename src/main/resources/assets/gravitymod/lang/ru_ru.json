@@ -1,0 +1,15 @@
+{
+  "item.gravitymod.gravity_gauntlet": "Гравитационная Хватка",
+  "item.gravitymod.gravity_gauntlet.desc": "Манипулятор гравитационного поля нулевого уровня",
+  "item.gravitymod.gravity_gauntlet.tooltip.mode1": "§e[ПКМ]§7 Захват сущности или вырывание блока в грави-поле",
+  "item.gravitymod.gravity_gauntlet.tooltip.mode2": "§6[ЛКМ]§7 Кинетический залп захваченным объектом (скорость 4.0)",
+  "item.gravitymod.gravity_gauntlet.tooltip.mode2_empty": "§b[ЛКМ (пусто)]§7 Коническая ударная волна (Репульсор)",
+  "item.gravitymod.gravity_gauntlet.tooltip.attract": "§d[Shift + ПКМ]§7 Гравитационный вихрь предметов (радиус 15 блоков)",
+  "item.gravitymod.gravity_gauntlet.tooltip.durability_info": "§8Удержание тратит 1 прочность каждые 2 секунды",
+  "message.gravitymod.captured": "§b[Грави-Хватка] §eЦель захвачена: §f%s",
+  "message.gravitymod.captured_block": "§b[Грави-Хватка] §eБлок извлечён: §f%s",
+  "message.gravitymod.released": "§7[Грави-Хватка] §fЦель отпущена.",
+  "message.gravitymod.launched": "§c[Грави-Хватка] §6§lКИНЕТИЧЕСКИЙ ВЫСТРЕЛ!",
+  "message.gravitymod.repulsor": "§9[Грави-Хватка] §b⚡ Репульсорная ударная волна!",
+  "message.gravitymod.attracted": "§d[Грави-Хватка] §5Предметы притянуты магнитным полем!"
+}
