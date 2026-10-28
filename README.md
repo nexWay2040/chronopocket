@@ -66,7 +66,7 @@
 ## 📦 Быстрая установка
 
 1. Установите **Minecraft 26.1** с **[Fabric Loader](https://fabricmc.net/)** (`0.20.1+`).
-2. Скачайте `chronopocket-1.0.0.jar` из папки [`release/`](release/chronopocket-1.0.0.jar) данного репозитория.
+2. Скачайте `chronopocket-1.0.0.jar` из папки [`release/`]([release/chronopocket-1.0.0.jar](https://github.com/nexWay2040/chronopocket/releases) данного репозитория.
 3. Поместите файл в папку `.minecraft/mods/`.
 4. Запустите игру!
 
