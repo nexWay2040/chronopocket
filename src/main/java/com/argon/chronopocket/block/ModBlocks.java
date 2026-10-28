@@ -7,7 +7,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -24,24 +23,26 @@ public class ModBlocks {
         ChronoPocketMod.id("pocket_exit")
     );
 
+    // Fast-mineable with pickaxe (hardness 2.0f like an iron block / chest)
     public static final Block POCKET_BASE_BLOCK = Registry.register(
         BuiltInRegistries.BLOCK,
         POCKET_BASE_KEY,
         new PocketBaseBlock(BlockBehaviour.Properties.of()
             .setId(POCKET_BASE_KEY)
-            .strength(5.0f, 1200.0f)
-            .sound(SoundType.NETHERITE_BLOCK)
+            .strength(2.0f, 6.0f)
+            .sound(SoundType.COPPER)
             .lightLevel(state -> 12)
             .requiresCorrectToolForDrops()
         )
     );
 
+    // Unbreakable Bedrock-tier Exit Console (-1.0f hardness prevents breaking in survival)
     public static final Block POCKET_EXIT_BLOCK = Registry.register(
         BuiltInRegistries.BLOCK,
         POCKET_EXIT_KEY,
         new PocketExitBlock(BlockBehaviour.Properties.of()
             .setId(POCKET_EXIT_KEY)
-            .strength(100.0f, 3600000.0f) // Indestructible exit console
+            .strength(-1.0f, 3600000.0f)
             .sound(SoundType.AMETHYST)
             .lightLevel(state -> 15)
         )

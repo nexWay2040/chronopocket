@@ -20,5 +20,6 @@
   "message.chronopocket.checkpoint_expired": "§c[Chrono-Remote] §7Temporal anchor expired.",
   "message.chronopocket.checkpoint_ticking": "§6[Chrono-Remote] §eRewind available: §f%s s §7(Right-Click to reset)",
   "message.chronopocket.rewinding": "§d⚡ [Chrono-Remote] REWINDING TIME BACKWARDS...",
-  "message.chronopocket.rewound": "§b⚡ [Chrono-Remote] TIMELINE SUCCESSFULLY REWOUND!"
+  "message.chronopocket.rewound": "§b⚡ [Chrono-Remote] TIMELINE SUCCESSFULLY REWOUND!",
+  "message.chronopocket.cannot_nest": "⚠ Cannot place a Pocket Base inside the pocket dimension!"
 }

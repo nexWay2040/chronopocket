@@ -20,5 +20,6 @@
   "message.chronopocket.checkpoint_expired": "§c[Хроно-Пульт] §7Время действия якоря истекло.",
   "message.chronopocket.checkpoint_ticking": "§6[Хроно-Пульт] §eОсталось: §f%s с §7(ПКМ для отката)",
   "message.chronopocket.rewinding": "§d⚡ [Хроно-Пульт] ПЕРЕМОТКА ВРЕМЕНИ НАЗАД...",
-  "message.chronopocket.rewound": "§b⚡ [Хроно-Пульт] ВРЕМЯ УСПЕШНО ПЕРЕМОТАНО НАЗАД!"
+  "message.chronopocket.rewound": "§b⚡ [Хроно-Пульт] ВРЕМЯ УСПЕШНО ПЕРЕМОТАНО НАЗАД!",
+  "message.chronopocket.cannot_nest": "⚠ Нельзя устанавливать Карманную Базу внутри подпространства!"
 }

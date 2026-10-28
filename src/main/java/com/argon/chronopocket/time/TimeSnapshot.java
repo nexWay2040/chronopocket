@@ -2,10 +2,12 @@ package com.argon.chronopocket.time;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,14 +25,19 @@ public record TimeSnapshot(
         float yRot,
         float xRot,
         float health,
-        int foodLevel
+        int foodLevel,
+        List<Vec3> path
     ) {}
 
     public record EntityRecord(
         UUID uuid,
+        EntityType<?> type,
         ResourceKey<Level> dimension,
-        Vec3 position,
-        float health
+        Vec3 initialPos,
+        float initialHealth,
+        float yRot,
+        float xRot,
+        List<Vec3> path
     ) {}
 
     public record BlockRecord(

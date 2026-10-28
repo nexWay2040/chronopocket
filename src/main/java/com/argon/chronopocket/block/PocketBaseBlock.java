@@ -5,7 +5,9 @@ import com.argon.chronopocket.component.PocketDataComponents;
 import com.argon.chronopocket.pocket.PocketDimensionManager;
 import com.argon.chronopocket.pocket.PocketSavedData;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -13,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -43,6 +46,21 @@ public class PocketBaseBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PocketBaseBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        // Disallow recursive nesting: cannot place a pocket base inside the pocket dimension!
+        if (context.getLevel().dimension().equals(PocketDimensionManager.POCKET_LEVEL_KEY)) {
+            if (context.getPlayer() != null) {
+                context.getPlayer().sendOverlayMessage(
+                    Component.translatable("message.chronopocket.cannot_nest").withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
+                );
+            }
+            return null; // Prevents placement
+        }
+        return defaultBlockState();
     }
 
     @Override
